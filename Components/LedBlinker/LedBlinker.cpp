@@ -5,7 +5,7 @@
 // ======================================================================
 
 #include <Components/LedBlinker/LedBlinker.hpp>
-#include <FpConfig.hpp>
+#include <config/FpConfig.hpp>
 
 namespace Components
 {
