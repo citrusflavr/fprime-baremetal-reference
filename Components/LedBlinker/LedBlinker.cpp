@@ -53,8 +53,8 @@ namespace Components
 
   void LedBlinker ::
       run_handler(
-          const NATIVE_INT_TYPE portNum,
-          NATIVE_UINT_TYPE context)
+          const FwIndexType portNum,
+          U32 context)
   {
     // Read back the parameter value
     Fw::ParamValid isValid;
