@@ -343,7 +343,7 @@ typedef enum {
 #endif
 
 #ifndef FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE
-#define FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE 4  //!< Maximum size of a handle for OS condition variables
+#define FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS condition variables
 #endif
 
 #ifndef FW_CPU_HANDLE_MAX_SIZE

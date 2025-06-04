@@ -8,10 +8,16 @@ module BaseDeployment {
       rateGroup1
     }
 
+    enum Ports_ComPacketQueue {
+      EVENTS,
+      TELEMETRY
+    }
+
     enum Ports_StaticMemory {
       framer
-      deframer
-      deframing
+      comDriver
+      accumulator
+      router
     }
 
   topology BaseDeployment {
@@ -22,8 +28,12 @@ module BaseDeployment {
 
     instance blinker
     instance cmdDisp
-    instance commDriver
+    instance comDriver
+    instance comQueue
+    instance comStub
+    instance fprimeRouter
     instance deframer
+    instance frameAccumulator
     instance eventLogger
     instance fatalAdapter
     instance fatalHandler
@@ -63,9 +73,10 @@ module BaseDeployment {
       # Rate group 1
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1.CycleIn
       rateGroup1.RateGroupMemberOut[0] -> blinker.run
-      rateGroup1.RateGroupMemberOut[1] -> commDriver.schedIn
+      rateGroup1.RateGroupMemberOut[1] -> comDriver.schedIn
       rateGroup1.RateGroupMemberOut[2] -> tlmSend.Run
       rateGroup1.RateGroupMemberOut[3] -> systemResources.run
+      rateGroup1.RateGroupMemberOut[4] -> comQueue.run
     }
 
     connections FaultProtection {
@@ -74,27 +85,64 @@ module BaseDeployment {
 
     connections Downlink {
 
-      tlmSend.PktSend -> framer.comIn
-      eventLogger.PktSend -> framer.comIn
+      #tlmSend.PktSend -> framer.comIn
+      #eventLogger.PktSend -> framer.comIn
+      # Inputs to ComQueue (events, telemetry)
+      eventLogger.PktSend         -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.EVENTS]
+      tlmSend.PktSend             -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.TELEMETRY]
 
-      framer.framedAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.framer]
-      framer.framedOut -> commDriver.$send
+      # ComQueue <-> Framer
+      comQueue.dataOut   -> framer.dataIn
+      framer.dataReturnOut -> comQueue.dataReturnIn
+      framer.comStatusOut  -> comQueue.comStatusIn
 
-      commDriver.deallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.framer]
+      # Static Memory for Framer
+      framer.bufferAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.framer]
+      framer.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.framer]
 
+      # Framer <-> ComStub
+      framer.dataOut        -> comStub.dataIn
+      comStub.dataReturnOut -> framer.dataReturnIn
+      comStub.comStatusOut  -> framer.comStatusIn
+
+      # ComStub <-> ComDriver
+      comStub.drvSendOut      -> comDriver.$send
+      comDriver.sendReturnOut -> comStub.drvSendReturnIn
+      comDriver.ready         -> comStub.drvConnected
     }
 
     connections Uplink {
+      # ComDriver buffer allocations
+      comDriver.allocate      -> staticMemory.bufferAllocate[Ports_StaticMemory.comDriver]
+      comDriver.deallocate    -> staticMemory.bufferDeallocate[Ports_StaticMemory.comDriver]
 
-      commDriver.allocate -> staticMemory.bufferAllocate[Ports_StaticMemory.deframer]
-      commDriver.$recv -> deframer.framedIn
-      deframer.framedDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.deframer]
+      # ComDriver <-> ComStub
+      comDriver.$recv             -> comStub.drvReceiveIn
+      comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
 
-      deframer.comOut -> cmdDisp.seqCmdBuff
-      cmdDisp.seqCmdStatus -> deframer.cmdResponseIn
+      # ComStub <-> FrameAccumulator
+      comStub.dataOut                -> frameAccumulator.dataIn
+      frameAccumulator.dataReturnOut -> comStub.dataReturnIn
 
-      deframer.bufferAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.deframing]
-      deframer.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.deframing]
+      # FrameAccumulator buffer allocations
+      frameAccumulator.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.accumulator]
+      frameAccumulator.bufferAllocate   -> staticMemory.bufferAllocate[Ports_StaticMemory.accumulator]
+
+      # FrameAccumulator <-> Deframer
+      frameAccumulator.dataOut  -> deframer.dataIn
+      deframer.dataReturnOut    -> frameAccumulator.dataReturnIn
+
+      # Deframer <-> Router
+      deframer.dataOut           -> fprimeRouter.dataIn
+      fprimeRouter.dataReturnOut -> deframer.dataReturnIn
+
+      # Router buffer allocations
+      fprimeRouter.bufferAllocate   -> staticMemory.bufferAllocate[Ports_StaticMemory.router]
+      fprimeRouter.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.router]
+
+      # Router <-> CmdDispatcher
+      fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
+      cmdDisp.seqCmdStatus     -> fprimeRouter.cmdResponseIn
 
     }
 

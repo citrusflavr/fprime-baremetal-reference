@@ -10,7 +10,7 @@
 #include "BaseDeployment/Top/FppConstantsAc.hpp"
 #include "Svc/FramingProtocol/FprimeProtocol.hpp"
 
-#include <FprimeArduino.hpp>
+#include <config/FprimeArduino.hpp>
 
 // Definitions are placed within a namespace named after the deployment
 namespace BaseDeployment {

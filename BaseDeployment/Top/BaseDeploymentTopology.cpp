@@ -5,12 +5,12 @@
 // ======================================================================
 // Provides access to autocoded functions
 #include <BaseDeployment/Top/BaseDeploymentTopologyAc.hpp>
-#include <BaseDeployment/Top/BaseDeploymentPacketsAc.hpp>
 #include <config/FppConstantsAc.hpp>
 
 // Necessary project-specified types
 #include <Fw/Types/MallocAllocator.hpp>
-#include <Svc/FramingProtocol/FprimeProtocol.hpp>
+#include <Svc/FrameAccumulator/FrameDetector/FprimeFrameDetector.hpp>
+#include <BaseDeployment/Top/Ports_ComPacketQueueEnumAc.hpp>
 
 // Allows easy reference to objects in FPP/autocoder required namespaces
 using namespace BaseDeployment;
@@ -19,17 +19,17 @@ using namespace BaseDeployment;
 // initialization phase.
 Fw::MallocAllocator mallocator;
 
-// The reference topology uses the F´ packet protocol when communicating with the ground and therefore uses the F´
-// framing and deframing implementations.
-Svc::FprimeFraming framing;
-Svc::FprimeDeframing deframing;
+// FprimeFrameDetector is used to configure the FrameAccumulator to detect F Prime frames
+Svc::FrameDetectors::FprimeFrameDetector frameDetector;
+
+Svc::ComQueue::QueueConfigurationTable configurationTable;
 
 // The reference topology divides the incoming clock signal (1kHz) into sub-signals: 10Hz, 1Hz
 Svc::RateGroupDriver::DividerSet rateGroupDivisors = {{ {100, 0}, {1000, 0} }};
 
 // Rate groups may supply a context token to each of the attached children whose purpose is set by the project. The
 // reference topology sets each token to zero as these contexts are unused in this project.
-NATIVE_INT_TYPE rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::PassiveRateGroupOutputPorts] = {};
+U32 rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::PassiveRateGroupOutputPorts] = {};
 
 /**
  * \brief configure/setup components in project-specific way
@@ -40,16 +40,27 @@ NATIVE_INT_TYPE rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::Passi
  */
 void configureTopology() {
 
+    // Frame accumulator needs to be passed a frame detector (default F Prime frame detector)
+    frameAccumulator.configure(frameDetector, 1, mallocator, 2048);
+
     // Rate group driver needs a divisor list
     rateGroupDriver.configure(rateGroupDivisors);
 
     // Rate groups require context arrays.
     rateGroup1.configure(rateGroup1Context, FW_NUM_ARRAY_ELEMENTS(rateGroup1Context));
 
-    // Framer and Deframer components need to be passed a protocol handler
-    framer.setup(framing);
-    deframer.setup(deframing);
-
+    // ComQueue configuration
+    // Events (highest-priority)
+    configurationTable.entries[Ports_ComPacketQueue::EVENTS].depth = 100;
+    configurationTable.entries[Ports_ComPacketQueue::EVENTS].priority = 0;
+    // Telemetry
+    configurationTable.entries[Ports_ComPacketQueue::TELEMETRY].depth = 500;
+    configurationTable.entries[Ports_ComPacketQueue::TELEMETRY].priority = 2;
+    // File Downlink (first entry after the ComPacket queues = NUM_CONSTANTS)
+    configurationTable.entries[Ports_ComPacketQueue::NUM_CONSTANTS].depth = 100;
+    configurationTable.entries[Ports_ComPacketQueue::NUM_CONSTANTS].priority = 1;
+    // Allocation identifier is 0 as the MallocAllocator discards it
+    comQueue.configure(configurationTable, 0, mallocator);
 }
 
 // Public functions for use in main program are namespaced with deployment name BaseDeployment
@@ -71,7 +82,7 @@ void setupTopology(const TopologyState& state) {
     startTasks(state);
 
     rateDriver.configure(1);
-    commDriver.configure(&Serial);
+    comDriver.configure(&Serial);
     gpioDriver.open(Arduino::DEF_LED_BUILTIN, Arduino::GpioDriver::GpioDirection::OUT);
     rateDriver.start();
 }

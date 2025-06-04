@@ -25,7 +25,7 @@ constant SeqDispatcherSequencerPorts = 2
 constant CmdSplitterPorts = CmdDispatcherSequencePorts
 
 @ Number of static memory allocations
-constant StaticMemoryAllocations = 3
+constant StaticMemoryAllocations = 4
 
 @ Used to ping active components
 constant HealthPingPorts = 1
