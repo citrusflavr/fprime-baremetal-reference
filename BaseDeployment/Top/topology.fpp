@@ -75,8 +75,8 @@ module BaseDeployment {
       rateGroup1.RateGroupMemberOut[0] -> blinker.run
       rateGroup1.RateGroupMemberOut[1] -> comDriver.schedIn
       rateGroup1.RateGroupMemberOut[2] -> tlmSend.Run
-      rateGroup1.RateGroupMemberOut[3] -> systemResources.run
-      rateGroup1.RateGroupMemberOut[4] -> comQueue.run
+      #rateGroup1.RateGroupMemberOut[2] -> systemResources.run
+      rateGroup1.RateGroupMemberOut[3] -> comQueue.run
     }
 
     connections FaultProtection {
@@ -85,8 +85,6 @@ module BaseDeployment {
 
     connections Downlink {
 
-      #tlmSend.PktSend -> framer.comIn
-      #eventLogger.PktSend -> framer.comIn
       # Inputs to ComQueue (events, telemetry)
       eventLogger.PktSend         -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.EVENTS]
       tlmSend.PktSend             -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.TELEMETRY]
