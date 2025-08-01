@@ -21,18 +21,6 @@ extern "C" {
 // ----------------------------------------------------------------------
 // Type aliases
 // ----------------------------------------------------------------------
-
-
-
-// Define enumeration for Time base types
-// Note: maintaining C-style
-typedef enum {
-    TB_NONE,              //!< No time base has been established
-    TB_PROC_TIME,         //!< Indicates time is processor cycle time. Not tied to external time
-    TB_WORKSTATION_TIME,  //!< Time as reported on workstation where software is running. For testing.
-    TB_DONT_CARE =
-        0xFFFF  //!< Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed
-} TimeBase;
 #define FW_CONTEXT_DONT_CARE 0xFF  //!< Don't care value for time contexts in sequences
 
 // ----------------------------------------------------------------------
@@ -191,7 +179,7 @@ typedef enum {
 
 // Specifies the size of the buffer that contains a communications packet.
 #ifndef FW_COM_BUFFER_MAX_SIZE
-#define FW_COM_BUFFER_MAX_SIZE 128
+#define FW_COM_BUFFER_MAX_SIZE 132
 #endif
 
 // Specifies the size of the buffer attached to state machine signals.
@@ -258,7 +246,7 @@ typedef enum {
 
 // Specifies the maximum size of a file upload chunk
 #ifndef FW_FILE_BUFFER_MAX_SIZE
-#define FW_FILE_BUFFER_MAX_SIZE 255  //!< Max size of file buffer (i.e. chunk of file)
+#define FW_FILE_BUFFER_MAX_SIZE FW_COM_BUFFER_MAX_SIZE  //!< Max size of file buffer (i.e. chunk of file)
 #endif
 
 // Specifies the maximum size of a string in an interface call

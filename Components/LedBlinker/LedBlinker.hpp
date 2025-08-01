@@ -36,7 +36,7 @@ namespace Components {
       void parameterUpdated(FwPrmIdType id /*!< The parameter ID*/
       );
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Handler implementations for user-defined typed input ports
@@ -51,7 +51,7 @@ namespace Components {
       */
       );
 
-    PRIVATE:
+    private:
 
       // ----------------------------------------------------------------------
       // Command handler implementations

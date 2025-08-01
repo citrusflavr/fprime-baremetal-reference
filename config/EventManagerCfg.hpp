@@ -5,8 +5,8 @@
  *      Author: tcanham
  */
 
-#ifndef ACTIVELOGGER_ACTIVELOGGERIMPLCFG_HPP_
-#define ACTIVELOGGER_ACTIVELOGGERIMPLCFG_HPP_
+#ifndef Config_EventManagerCfg_HPP_
+#define Config_EventManagerCfg_HPP_
 
 // set default filters
 
@@ -24,4 +24,4 @@ enum {
     TELEM_ID_FILTER_SIZE = 2, //!< Size of telemetry ID filter
 };
 
-#endif /* ACTIVELOGGER_ACTIVELOGGERIMPLCFG_HPP_ */
+#endif /* Config_EventManagerCfg_HPP_ */

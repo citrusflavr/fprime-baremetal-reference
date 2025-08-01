@@ -23,7 +23,7 @@ module BaseDeployment {
       stack size Default.STACK_SIZE \
       priority 100 \
 
-  instance eventLogger: Svc.ActiveLogger base id 0x0B00 \
+  instance eventLogger: Svc.EventManager base id 0x0B00 \
     queue size Default.QUEUE_SIZE \
     stack size Default.STACK_SIZE \
     priority 98
