@@ -105,7 +105,6 @@ module BaseDeployment {
 
       # ComStub <-> ComDriver
       comStub.drvSendOut      -> comDriver.$send
-      comDriver.sendReturnOut -> comStub.drvSendReturnIn
       comDriver.ready         -> comStub.drvConnected
     }
 
