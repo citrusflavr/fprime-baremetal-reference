@@ -1,4 +1,4 @@
-module BaseDeployment {
+module ReferenceDeployment {
 
   # ----------------------------------------------------------------------
   # Defaults

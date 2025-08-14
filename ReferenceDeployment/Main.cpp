@@ -4,8 +4,8 @@
 //
 // ======================================================================
 // Used to access topology functions
-#include <BaseDeployment/Top/BaseDeploymentTopologyAc.hpp>
-#include <BaseDeployment/Top/BaseDeploymentTopology.hpp>
+#include <ReferenceDeployment/Top/ReferenceDeploymentTopologyAc.hpp>
+#include <ReferenceDeployment/Top/ReferenceDeploymentTopology.hpp>
 
 // Used for Baremetal TaskRunner
 #include <fprime-baremetal/Os/TaskRunner/TaskRunner.hpp>
@@ -29,12 +29,12 @@ void setup() {
     static_cast<Os::Arduino::StreamConsoleHandle*>(Os::Console::getSingleton().getHandle())->setStreamHandler(Serial);
 
     // Object for communicating state to the reference topology
-    BaseDeployment::TopologyState inputs;
+    ReferenceDeployment::TopologyState inputs;
     inputs.uartNumber = 0;
     inputs.uartBaud = 115200;
 
     // Setup topology
-    BaseDeployment::setupTopology(inputs);
+    ReferenceDeployment::setupTopology(inputs);
 
     Fw::Logger::log("Program Started\n");
 }

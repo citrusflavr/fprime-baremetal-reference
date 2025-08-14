@@ -15,7 +15,7 @@ register_fprime_module(
     "${CMAKE_CURRENT_LIST_DIR}/instances.fpp"
     "${CMAKE_CURRENT_LIST_DIR}/topology.fpp"
   SOURCES
-    "${CMAKE_CURRENT_LIST_DIR}/BaseDeploymentTopology.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/ReferenceDeploymentTopology.cpp"
   DEPENDS
     Arduino_Drv_StreamDriver
     fprime-baremetal_Os_TaskRunner

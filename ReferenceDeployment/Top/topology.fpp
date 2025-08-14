@@ -1,4 +1,4 @@
-module BaseDeployment {
+module ReferenceDeployment {
 
   # ----------------------------------------------------------------------
   # Symbolic constants for port numbers
@@ -8,7 +8,7 @@ module BaseDeployment {
       rateGroup1
     }
 
-  topology BaseDeployment {
+  topology ReferenceDeployment {
 
     # ----------------------------------------------------------------------
     # Subtopology imports
@@ -92,7 +92,7 @@ module BaseDeployment {
       cmdDisp.seqCmdStatus     -> ComFprime.fprimeRouter.cmdResponseIn
     }
 
-    connections BaseDeployment {
+    connections ReferenceDeployment {
       # Add here connections to user-defined components
       blinker.gpioSet -> gpioDriver.gpioWrite
     }

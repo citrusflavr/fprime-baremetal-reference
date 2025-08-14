@@ -1,13 +1,13 @@
 // ======================================================================
-// \title  BaseDeploymentTopologyDefs.hpp
+// \title  ReferenceDeploymentTopologyDefs.hpp
 // \brief required header file containing the required definitions for the topology autocoder
 //
 // ======================================================================
-#ifndef BASEDEPLOYMENT_BASEDEPLOYMENTTOPOLOGYDEFS_HPP
-#define BASEDEPLOYMENT_BASEDEPLOYMENTTOPOLOGYDEFS_HPP
+#ifndef REFERENCEDEPLOYMENT_REFERENCEDEPLOYMENTTOPOLOGYDEFS_HPP
+#define REFERENCEDEPLOYMENT_REFERENCEDEPLOYMENTTOPOLOGYDEFS_HPP
 
 #include "Fw/Types/MallocAllocator.hpp"
-#include "BaseDeployment/Top/FppConstantsAc.hpp"
+#include "ReferenceDeployment/Top/FppConstantsAc.hpp"
 
 // SubtopologyTopologyDefs includes
 #include "Svc/Subtopologies/ComFprime/SubtopologyTopologyDefs.hpp"
@@ -35,19 +35,19 @@
  * ```
  */
 namespace PingEntries {
-    namespace BaseDeployment_tlmSend      {enum { WARN = 3, FATAL = 5 };}
-    namespace BaseDeployment_cmdDisp      {enum { WARN = 3, FATAL = 5 };}
-    namespace BaseDeployment_eventLogger  {enum { WARN = 3, FATAL = 5 };}
-    namespace BaseDeployment_rateGroup1   {enum { WARN = 3, FATAL = 5 };}
+    namespace ReferenceDeployment_tlmSend      {enum { WARN = 3, FATAL = 5 };}
+    namespace ReferenceDeployment_cmdDisp      {enum { WARN = 3, FATAL = 5 };}
+    namespace ReferenceDeployment_eventLogger  {enum { WARN = 3, FATAL = 5 };}
+    namespace ReferenceDeployment_rateGroup1   {enum { WARN = 3, FATAL = 5 };}
 }  // namespace PingEntries
 
 // Definitions are placed within a namespace named after the deployment
-namespace BaseDeployment {
+namespace ReferenceDeployment {
 
     /**
      * \brief required type definition to carry state
      *
-     * The topology autocoder requires an object that carries state with the name `BaseDeployment::TopologyState`. Only the type
+     * The topology autocoder requires an object that carries state with the name `ReferenceDeployment::TopologyState`. Only the type
      * definition is required by the autocoder and the contents of this object are otherwise opaque to the autocoder. The
      * contents are entirely up to the definition of the project. This reference application specifies hostname and port
      * fields, which are derived by command line inputs.
@@ -57,7 +57,7 @@ namespace BaseDeployment {
         PlatformIntType uartBaud;
     };
 
-}  // namespace BaseDeployment
+}  // namespace ReferenceDeployment
 
 
 
