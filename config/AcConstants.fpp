@@ -10,10 +10,10 @@ constant ActiveRateGroupOutputPorts = 10
 constant PassiveRateGroupOutputPorts = 10
 
 @ Used to drive rate groups
-constant RateGroupDriverRateGroupPorts = 2
+constant RateGroupDriverRateGroupPorts = 3
 
 @ Used for command and registration ports
-constant CmdDispatcherComponentCommandPorts = 6
+constant CmdDispatcherComponentCommandPorts = 5
 
 @ Used for uplink/sequencer buffer/response ports
 constant CmdDispatcherSequencePorts = 1
@@ -64,7 +64,7 @@ constant AssertFatalAdapterEventFileSize = FileNameStringSize
 # Hub connections. Connections on all deployments should mirror these settings.
 # ----------------------------------------------------------------------
 
-constant GenericHubInputPorts = 5
-constant GenericHubOutputPorts = 5
-constant GenericHubInputBuffers = 5
-constant GenericHubOutputBuffers = 5
+constant GenericHubInputPorts = 10
+constant GenericHubOutputPorts = 10
+constant GenericHubInputBuffers = 10
+constant GenericHubOutputBuffers = 10

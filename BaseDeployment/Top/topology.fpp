@@ -8,19 +8,14 @@ module BaseDeployment {
       rateGroup1
     }
 
-    enum Ports_ComPacketQueue {
-      EVENTS,
-      TELEMETRY
-    }
-
-    enum Ports_StaticMemory {
-      framer
-      comDriver
-      accumulator
-      router
-    }
-
   topology BaseDeployment {
+
+    # ----------------------------------------------------------------------
+    # Subtopology imports
+    # ----------------------------------------------------------------------
+
+
+    import ComFprime.Subtopology
 
     # ----------------------------------------------------------------------
     # Instances used in the topology
@@ -29,23 +24,15 @@ module BaseDeployment {
     instance blinker
     instance cmdDisp
     instance comDriver
-    instance comQueue
-    instance comStub
-    instance fprimeRouter
-    instance deframer
-    instance frameAccumulator
     instance eventLogger
-    instance fatalAdapter
     instance fatalHandler
-    instance framer
     instance gpioDriver
     instance rateDriver
     instance rateGroup1
     instance rateGroupDriver
-    instance staticMemory
     instance systemResources
-    instance systemTime
     instance textLogger
+    instance timeHandler
     instance tlmSend
 
     # ----------------------------------------------------------------------
@@ -60,7 +47,7 @@ module BaseDeployment {
 
     text event connections instance textLogger
 
-    time connections instance systemTime
+    time connections instance timeHandler
 
     # ----------------------------------------------------------------------
     # Direct graph specifiers
@@ -72,75 +59,37 @@ module BaseDeployment {
 
       # Rate group 1
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1.CycleIn
-      rateGroup1.RateGroupMemberOut[0] -> blinker.run
-      rateGroup1.RateGroupMemberOut[1] -> comDriver.schedIn
-      rateGroup1.RateGroupMemberOut[2] -> tlmSend.Run
-      #rateGroup1.RateGroupMemberOut[2] -> systemResources.run
-      rateGroup1.RateGroupMemberOut[3] -> comQueue.run
+      rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
+      rateGroup1.RateGroupMemberOut[1] -> systemResources.run
+      rateGroup1.RateGroupMemberOut[2] -> comDriver.schedIn
+      rateGroup1.RateGroupMemberOut[3] -> blinker.run
     }
 
     connections FaultProtection {
       eventLogger.FatalAnnounce -> fatalHandler.FatalReceive
     }
 
-    connections Downlink {
 
-      # Inputs to ComQueue (events, telemetry)
-      eventLogger.PktSend         -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.EVENTS]
-      tlmSend.PktSend             -> comQueue.comPacketQueueIn[Ports_ComPacketQueue.TELEMETRY]
+    connections Communications {
+      # Inputs to ComQueue (events, telemetry, file)
+      eventLogger.PktSend -> ComFprime.comQueue.comPacketQueueIn[ComFprime.Ports_ComPacketQueue.EVENTS]
+      tlmSend.PktSend     -> ComFprime.comQueue.comPacketQueueIn[ComFprime.Ports_ComPacketQueue.TELEMETRY]
 
-      # ComQueue <-> Framer
-      comQueue.dataOut   -> framer.dataIn
-      framer.dataReturnOut -> comQueue.dataReturnIn
-      framer.comStatusOut  -> comQueue.comStatusIn
-
-      # Static Memory for Framer
-      framer.bufferAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.framer]
-      framer.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.framer]
-
-      # Framer <-> ComStub
-      framer.dataOut        -> comStub.dataIn
-      comStub.dataReturnOut -> framer.dataReturnIn
-      comStub.comStatusOut  -> framer.comStatusIn
-
-      # ComStub <-> ComDriver
-      comStub.drvSendOut      -> comDriver.$send
-      comDriver.ready         -> comStub.drvConnected
-    }
-
-    connections Uplink {
       # ComDriver buffer allocations
-      comDriver.allocate      -> staticMemory.bufferAllocate[Ports_StaticMemory.comDriver]
-      comDriver.deallocate    -> staticMemory.bufferDeallocate[Ports_StaticMemory.comDriver]
-
-      # ComDriver <-> ComStub
-      comDriver.$recv             -> comStub.drvReceiveIn
-      comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
-
-      # ComStub <-> FrameAccumulator
-      comStub.dataOut                -> frameAccumulator.dataIn
-      frameAccumulator.dataReturnOut -> comStub.dataReturnIn
-
-      # FrameAccumulator buffer allocations
-      frameAccumulator.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.accumulator]
-      frameAccumulator.bufferAllocate   -> staticMemory.bufferAllocate[Ports_StaticMemory.accumulator]
-
-      # FrameAccumulator <-> Deframer
-      frameAccumulator.dataOut  -> deframer.dataIn
-      deframer.dataReturnOut    -> frameAccumulator.dataReturnIn
-
-      # Deframer <-> Router
-      deframer.dataOut           -> fprimeRouter.dataIn
-      fprimeRouter.dataReturnOut -> deframer.dataReturnIn
-
-      # Router buffer allocations
-      fprimeRouter.bufferAllocate   -> staticMemory.bufferAllocate[Ports_StaticMemory.router]
-      fprimeRouter.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.router]
+      comDriver.allocate      -> ComFprime.commsBufferManager.bufferGetCallee
+      comDriver.deallocate    -> ComFprime.commsBufferManager.bufferSendIn
+      
+      # ComDriver <-> ComStub (Uplink)
+      comDriver.$recv                     -> ComFprime.comStub.drvReceiveIn
+      ComFprime.comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
+      
+      # ComStub <-> ComDriver (Downlink)
+      ComFprime.comStub.drvSendOut      -> comDriver.$send
+      comDriver.ready         -> ComFprime.comStub.drvConnected
 
       # Router <-> CmdDispatcher
-      fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
-      cmdDisp.seqCmdStatus     -> fprimeRouter.cmdResponseIn
-
+      ComFprime.fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
+      cmdDisp.seqCmdStatus     -> ComFprime.fprimeRouter.cmdResponseIn
     }
 
     connections BaseDeployment {

@@ -72,11 +72,6 @@ extern "C" {
 #define FW_QUEUE_REGISTRATION 1  //!< Indicates whether or not queue registration is used
 #endif
 
-#ifndef FW_BAREMETAL_SCHEDULER
-#define FW_BAREMETAL_SCHEDULER \
-    1  //!< Indicates whether or not a baremetal scheduler should be used. Alternatively the Os scheduler is used.
-#endif
-
 // On some systems, use of *printf family functions (snprintf, printf, etc) require a prohibitive amount of program
 // space. Setting this to `0` indicates that the Fw/String methods should stop using these functions to conserve
 // program size. However, this comes at the expense of discarding format parameters. i.e. the format string is returned
@@ -128,15 +123,8 @@ extern "C" {
 //
 // Note: users who want alternate asserts should set assert level to FW_NO_ASSERT and define FW_ASSERT in this header
 #ifndef FW_ASSERT_LEVEL
-#define FW_ASSERT_LEVEL FW_FILENAME_ASSERT  //!< Defines the type of assert used
+#define FW_ASSERT_LEVEL FW_RELATIVE_PATH_ASSERT  //!< Defines the type of assert used
 #endif
-
-// Define max length of assert string
-// Note: This constant truncates file names in assertion failure event reports
-#ifndef FW_ASSERT_TEXT_SIZE
-#define FW_ASSERT_TEXT_SIZE FwAssertTextSize  //!< Size of string used to store assert description
-#endif
-
 
 // Adjust various configuration parameters in the architecture. Some of the above enables may disable some of the values
 
@@ -151,7 +139,7 @@ extern "C" {
 #if FW_OBJECT_REGISTRATION
 // For the simple object registry provided with the framework, this specifies how many objects the registry will store.
 #ifndef FW_OBJ_SIMPLE_REG_ENTRIES
-#define FW_OBJ_SIMPLE_REG_ENTRIES 500  //!< Number of objects stored in simple object registry
+#define FW_OBJ_SIMPLE_REG_ENTRIES 128  //!< Number of objects stored in simple object registry
 #endif
 // When dumping the contents of the registry, this specifies the size of the buffer used to store object names. Should
 // be >= FW_OBJ_NAME_BUFFER_SIZE.
@@ -169,17 +157,17 @@ extern "C" {
 
 // Specifies the size of the string holding the queue name for queues
 #ifndef FW_QUEUE_NAME_BUFFER_SIZE
-#define FW_QUEUE_NAME_BUFFER_SIZE 10  //!< Max size of message queue name
+#define FW_QUEUE_NAME_BUFFER_SIZE 1  //!< Max size of message queue name
 #endif
 
 // Specifies the size of the string holding the task name for active components and tasks
 #ifndef FW_TASK_NAME_BUFFER_SIZE
-#define FW_TASK_NAME_BUFFER_SIZE 10  //!< Max size of task name
+#define FW_TASK_NAME_BUFFER_SIZE 1  //!< Max size of task name
 #endif
 
 // Specifies the size of the buffer that contains a communications packet.
 #ifndef FW_COM_BUFFER_MAX_SIZE
-#define FW_COM_BUFFER_MAX_SIZE 132
+#define FW_COM_BUFFER_MAX_SIZE 128
 #endif
 
 // Specifies the size of the buffer attached to state machine signals.
@@ -205,7 +193,7 @@ extern "C" {
 // Setting the below to zero will disable the check at the cost of not detecting commands that
 // are too large.
 #ifndef FW_CMD_CHECK_RESIDUAL
-#define FW_CMD_CHECK_RESIDUAL 1  //!< Check for leftover command bytes
+#define FW_CMD_CHECK_RESIDUAL 0  //!< Check for leftover command bytes
 #endif
 
 // Specifies the size of the buffer that contains the serialized log arguments.
@@ -216,12 +204,12 @@ extern "C" {
 // Specifies the maximum size of a string in a log event
 // Note: This constant truncates file names in assertion failure event reports
 #ifndef FW_LOG_STRING_MAX_SIZE
-#define FW_LOG_STRING_MAX_SIZE 120  //!< Max size of log string parameter type
+#define FW_LOG_STRING_MAX_SIZE 64  //!< Max size of log string parameter type
 #endif
 
 // Specifies the size of the buffer that contains the serialized telemetry value.
 #ifndef FW_TLM_BUFFER_MAX_SIZE
-#define FW_TLM_BUFFER_MAX_SIZE (FW_COM_BUFFER_MAX_SIZE - sizeof(FwChanIdType) - sizeof(FwPacketDescriptorType))
+#define FW_TLM_BUFFER_MAX_SIZE 12 + sizeof(FwChanIdType) + sizeof(FwPacketDescriptorType) // (FW_COM_BUFFER_MAX_SIZE - sizeof(FwChanIdType) - sizeof(FwPacketDescriptorType))
 #endif
 
 // Specifies the size of the buffer that contains statement args for the FpySequencer
@@ -231,7 +219,7 @@ extern "C" {
 
 // Specifies the maximum size of a string in a telemetry channel
 #ifndef FW_TLM_STRING_MAX_SIZE
-#define FW_TLM_STRING_MAX_SIZE 20  //!< Max size of channelized telemetry string type
+#define FW_TLM_STRING_MAX_SIZE 10  //!< Max size of channelized telemetry string type
 #endif
 
 // Specifies the size of the buffer that contains the serialized parameter value.
@@ -244,14 +232,14 @@ extern "C" {
 #define FW_PARAM_STRING_MAX_SIZE 40  //!< Max size of parameter string type
 #endif
 
-// Specifies the maximum size of a file upload chunk
+// Specifies the maximum size of a file downlink chunk
 #ifndef FW_FILE_BUFFER_MAX_SIZE
-#define FW_FILE_BUFFER_MAX_SIZE FW_COM_BUFFER_MAX_SIZE  //!< Max size of file buffer (i.e. chunk of file)
+#define FW_FILE_BUFFER_MAX_SIZE 255  //!< Max size of file buffer (i.e. chunk of file)
 #endif
 
 // Specifies the maximum size of a string in an interface call
 #ifndef FW_INTERNAL_INTERFACE_STRING_MAX_SIZE
-#define FW_INTERNAL_INTERFACE_STRING_MAX_SIZE 256  //!< Max size of interface string parameter type
+#define FW_INTERNAL_INTERFACE_STRING_MAX_SIZE 64  //!< Max size of interface string parameter type
 #endif
 
 // Enables text logging of events as well as data logging. Adds a second logging port for text output.
@@ -262,7 +250,7 @@ extern "C" {
 
 // Define the size of the text log string buffer. Should be large enough for format string and arguments
 #ifndef FW_LOG_TEXT_BUFFER_SIZE
-#define FW_LOG_TEXT_BUFFER_SIZE 256  //!< Max size of string for text log message
+#define FW_LOG_TEXT_BUFFER_SIZE 128  //!< Max size of string for text log message
 #endif
 
 // Define if serializables have toString() method. Turning off will save code space and
@@ -276,54 +264,42 @@ extern "C" {
 #define FW_AMPCS_COMPATIBLE 0  //!< Whether or not JPL AMPCS ground system support is enabled.
 #endif
 
-// These settings configure whether or not the timebase and context values for the Fw::Time
-// class are used. Some systems may not use or need those fields
-
-#ifndef FW_USE_TIME_BASE
-#define FW_USE_TIME_BASE 1  //!< Whether or not to use the time base
-#endif
-
-#ifndef FW_USE_TIME_CONTEXT
-#define FW_USE_TIME_CONTEXT 1  //!< Whether or not to serialize the time context
-#endif
-
 // Configuration for Fw::String
-
 #ifndef FW_FIXED_LENGTH_STRING_SIZE
 #define FW_FIXED_LENGTH_STRING_SIZE 128  //!< Character array size for Fw::String
 #endif
 
 // OS configuration
 #ifndef FW_CONSOLE_HANDLE_MAX_SIZE
-#define FW_CONSOLE_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS queues
+#define FW_CONSOLE_HANDLE_MAX_SIZE 24  //!< Maximum size of a handle for OS queues
 #endif
 
 #ifndef FW_TASK_HANDLE_MAX_SIZE
-#define FW_TASK_HANDLE_MAX_SIZE 20  //!< Maximum size of a handle for OS queues
+#define FW_TASK_HANDLE_MAX_SIZE 24  //!< Maximum size of a handle for OS queues
 #endif
 
 #ifndef FW_FILE_HANDLE_MAX_SIZE
-#define FW_FILE_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS queues
+#define FW_FILE_HANDLE_MAX_SIZE 32  //!< Maximum size of a handle for OS queues
 #endif
 
 #ifndef FW_MUTEX_HANDLE_MAX_SIZE
-#define FW_MUTEX_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS queues
+#define FW_MUTEX_HANDLE_MAX_SIZE 72  //!< Maximum size of a handle for OS queues
 #endif
 
 #ifndef FW_QUEUE_HANDLE_MAX_SIZE
-#define FW_QUEUE_HANDLE_MAX_SIZE 128  //!< Maximum size of a handle for OS queues
+#define FW_QUEUE_HANDLE_MAX_SIZE 352  //!< Maximum size of a handle for OS queues
 #endif
 
 #ifndef FW_DIRECTORY_HANDLE_MAX_SIZE
-#define FW_DIRECTORY_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
+#define FW_DIRECTORY_HANDLE_MAX_SIZE 48  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
 #endif
 
 #ifndef FW_FILESYSTEM_HANDLE_MAX_SIZE
-#define FW_FILESYSTEM_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
+#define FW_FILESYSTEM_HANDLE_MAX_SIZE 16  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
 #endif
 
 #ifndef FW_RAW_TIME_HANDLE_MAX_SIZE
-#define FW_RAW_TIME_HANDLE_MAX_SIZE 12  //!< Maximum size of a handle for OS::RawTime objects
+#define FW_RAW_TIME_HANDLE_MAX_SIZE 56  //!< Maximum size of a handle for OS::RawTime objects
 #endif
 
 #ifndef FW_RAW_TIME_SERIALIZATION_MAX_SIZE
@@ -331,15 +307,15 @@ extern "C" {
 #endif
 
 #ifndef FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE
-#define FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS condition variables
+#define FW_CONDITION_VARIABLE_HANDLE_MAX_SIZE 56  //!< Maximum size of a handle for OS condition variables
 #endif
 
 #ifndef FW_CPU_HANDLE_MAX_SIZE
-#define FW_CPU_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS cpu
+#define FW_CPU_HANDLE_MAX_SIZE 16  //!< Maximum size of a handle for OS cpu
 #endif
 
 #ifndef FW_MEMORY_HANDLE_MAX_SIZE
-#define FW_MEMORY_HANDLE_MAX_SIZE 8  //!< Maximum size of a handle for OS memory
+#define FW_MEMORY_HANDLE_MAX_SIZE 16  //!< Maximum size of a handle for OS memory
 #endif
 
 #ifndef FW_HANDLE_ALIGNMENT
@@ -348,7 +324,7 @@ extern "C" {
 
 // Note: One buffer of this size will be stack-allocated during certain OSAL operations e.g. when copying a file
 #ifndef FW_FILE_CHUNK_SIZE
-#define FW_FILE_CHUNK_SIZE 128  //!< Chunk size for working with files in the OSAL layer
+#define FW_FILE_CHUNK_SIZE 512  //!< Chunk size for working with files in the OSAL layer
 #endif
 
 // *** NOTE configuration checks are in Fw/Cfg/ConfigCheck.cpp in order to have
