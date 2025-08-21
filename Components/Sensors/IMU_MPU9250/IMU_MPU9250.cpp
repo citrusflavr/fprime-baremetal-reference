@@ -6,7 +6,7 @@
 
 
 #include <Components/Sensors/IMU_MPU9250/IMU_MPU9250.hpp>
-#include <config/FpConfig.hpp>
+#include <Fw/FPrimeBasicTypes.hpp>
 
 namespace Sensors {
 
