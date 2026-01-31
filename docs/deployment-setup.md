@@ -1,5 +1,4 @@
 # Deployment Setup
-
 If you wish to create a new F´ deployment with minimal components that can run on Arduino microcontrollers, edit the `settings.ini` in the project root and add the following line:
 
 ```

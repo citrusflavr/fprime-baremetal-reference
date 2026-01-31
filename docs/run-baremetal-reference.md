@@ -1,6 +1,7 @@
 # Programming and Running BaremetalReference Application in Serial Mode
 Current BaremetalReference has been set to communicate by serial and without the radio. Radio can be re-enabled (currently commented out), see this [section](#programming-and-running-the-baremetalreference-and-radiopassthrough-applications) for instructions.
 
+
 ## Uploading hex file for the Teensy
 1. Use `fprime-util build` to make the hex file to load onto Teensy.
 

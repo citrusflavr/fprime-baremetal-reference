@@ -1,6 +1,7 @@
 # Programming and Running the BaseDeployment Application on Hardware
 The goal is to be able to establish a connection bewteen a microcontroller and fprime-gds. From there, you will be able to enable/disable the LED blinking as well as adjusting the blinking interval. This base deployment utilizes minimal F' components and an LED blinker component.
 
+
 ## Uploading hex file for the Teensy
 The Teensyduino application should have appeared after running `fprime-util build`. Choose the hex file to load into Teensyduino located in `./build-artifacts/BaseDeployment/bin/`. Manually press the reset button on the Teensy to upload the program.
 
