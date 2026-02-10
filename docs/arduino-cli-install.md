@@ -34,7 +34,7 @@ arduino-cli config add board_manager.additional_urls https://github.com/earlephi
 arduino-cli config add board_manager.additional_urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
 ```
 
-Update the core index.
+Update the arduino-cli core index.
 ```
 arduino-cli core update-index
 ```

@@ -9,5 +9,9 @@ The BaremetalReference is a reference to run F´ on embedded systems with hardwa
   2. [Programming and Running the BaseDeployment Application](docs/run-base-deployment.md)
   3. [Programming and Running the BaremetalReference and RadioPassthrough Applications](docs/run-baremetal-reference.md)
 
+# This reference was tested on
+  - Teensy 4.1
+  - Adafruit Feather M4
+  - Nucleo-H723ZG
 
 ### First Step: [Install Arduino CLI](docs/arduino-cli-install.md)
