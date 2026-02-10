@@ -11,17 +11,14 @@ The Teensyduino application should have appeared after running `fprime-util buil
 
 ## Uploading binary file for the Feather M0
 Double press on the reset button on the Feather to set it to programming mode. Then run the following commands below.
+```sh
+~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac -i -d --port=ttyACM0 -U -i --offset=0x2000 -w -v ./build-artifacts/featherM0/ReferenceDeployment/bin/ReferenceDeployment.bin -R
+```
 
 ## Uploading hex file for the STM32
 Find the hex file after running ```fprime-util build``` in ```./build-artifacts/ReferenceDeployment/bin/```. Use STLink to flash it onto your STM32 board. Make sure to have the correct udev permissions if you're on Linux.
 
-```sh
-~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac -i -d --port=ttyACM0 -U -i --offset=0x2000 -w -v ./build-artifacts/featherM0/ReferenceDeployment/bin/ReferenceDeployment.bin -R
-```
-Note:
-  - If you have more than one device connected, or if you are using a different OS, `ttyACM0` may differ for your system.
-
-## Using GDS over serial
+# Using GDS over serial
 Make sure to ensure that the framing protocol between your board and ```fprime-gds``` are consistent with each other. ```fprime-gds -h``` for more detail about proper flag usage to change framing protocol.
 ```sh
 fprime-gds -n --dictionary ./build-artifacts/YOUR_DEVICE/ReferenceDeployment/dict/ReferenceDeploymentTopologyAppDictionary.json --communication-selection uart --uart-device /dev/ttyACM0 --uart-baud 115200
